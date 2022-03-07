@@ -11,8 +11,21 @@ int handleArg(arg) char *arg; {
   char flag, *longFlag, first, firstTwo[3];
   char *help, *license;
 
-  help =  "Copyright 2022 Bryson Steck\n"
-          "";
+  help =  "\nCopyright 2022 Bryson Steck\n"
+          "Licensed under the BSD 2-Clause. You can read the license by running 'uirc -l'\n\n"
+
+          "usage: uirc [-hl] [-r] IMAGE1 [IMAGE2] [...]\n\n"
+
+          "options:\n"
+          "\t-h\t> Display this message\n"
+          "\t-l\t> Display the license disclaimer for uirc (BSD 2-Clause)\n\n"
+
+          "\t-r\t> Display the resolution of the image (in addition to the ratio)\n\n"
+
+          "help:\n"
+          "If you get stuck using uirc, you can read the manpage for uirc:\n\n"
+
+          "\t'man uirc'\n\n";
 
   flag = '-';
   longFlag = "--";

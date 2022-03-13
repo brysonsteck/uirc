@@ -8,14 +8,14 @@ uirc: ${SRC}
 	${CC} -o uirc -O ${SRC}
 
 install: uirc
-	mkdir -p ${PREFIX}/bin
-	cp -f uirc ${PREFIX}/bin
-	chmod 755 ${PREFIX}/bin/uirc
+	mkdir -p ${PREFIX}
+	cp -f uirc ${PREFIX}
+	chmod 755 ${PREFIX}/uirc
 	mkdir -p ${LIB_PREFIX}/uirc
 	cp -f LICENSE ${LIB_PREFIX}/uirc
 
 uninstall:
-	rm ${PREFIX}/bin/uirc
+	rm ${PREFIX}/uirc
 	rm -r ${LIB_PREFIX}/uirc
 	test -s ${INCLUDE_PREFIX}/uirc || rm -r ${INCLUDE_PREFIX}/uirc
 

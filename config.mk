@@ -1,5 +1,5 @@
 # install location
-PREFIX = /usr/local
+PREFIX = /usr/local/bin
 LIB_PREFIX = ${PREFIX}/lib
 INCLUDE_PREFIX = /usr/include
 

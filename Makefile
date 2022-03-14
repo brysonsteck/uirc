@@ -20,10 +20,10 @@ uninstall:
 	test -s ${INCLUDE_PREFIX}/uirc || rm -r ${INCLUDE_PREFIX}/uirc
 
 stb:
-	@echo "It is best to download the stb library from your system's package manager. 
+	@echo "It is best to download the stb library from your system's package manager."
 	@echo "Press ENTER to manually install the stb headers needed. Otherwise, quit with ^C"
 	@read
-	mkdir -p ${INCLUDE_PREFIX}/uirc
-	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P /usr/include/uirc/stb_image.h
+	mkdir -p ${INCLUDE_PREFIX}/stb
+	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P /usr/include/stb/stb_image.h
 
 .PHONY: uirc install stb

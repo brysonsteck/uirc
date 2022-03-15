@@ -5,7 +5,7 @@ include config.mk
 SRC = uirc.c
 
 uirc: ${SRC}
-	${CC} -o uirc -O ${SRC}
+	${CC} -DLICENSE_DIR='"./"' -o uirc -O ${SRC}
 
 install: uirc
 	mkdir -p ${PREFIX}
@@ -21,7 +21,7 @@ uninstall:
 
 stb:
 	@echo "It is best to download the stb library from your system's package manager."
-	@echo "Press ENTER to manually install the stb headers needed. Otherwise, quit with ^C"
+	@echo "Press ENTER to manually install the stb headers needed instead. Otherwise, quit with ^C"
 	@read
 	mkdir -p ${INCLUDE_PREFIX}/stb
 	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P /usr/include/stb/stb_image.h

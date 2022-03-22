@@ -32,11 +32,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stb/stb_image.h>
+#include <curl/curl.h>
+#include <stdbool.h>
 
 const char *VERSION = "0.1.0";
 
@@ -67,6 +71,8 @@ int handleArg(arg) char *arg; {
   firstTwo[2] = '\0';
   size = sizeof arg;
 
+  bool rFlag;
+
   // determine if any arguments are flags 
   if (strcmp(longFlag, firstTwo) == 0) {
     printf("ok");
@@ -76,49 +82,79 @@ int handleArg(arg) char *arg; {
       switch (arg[i]) {
         case 'h':
           printf("an unneccessary image ratio calculator (uirc) v%s\n\n", VERSION);
-          printf("Copyright 2022 Bryson Steck\nLicensed under the BSD 2-Clause. You can read the license by running 'uirc -l'\n\n");  
+          printf("Copyright 2022 Bryson Steck\n\n\n");  
           printf("%s\n", help);
-          break;
+          exit(1);
         case 'l':
-          readLicense();
+          //readLicense();
+          exit(1);
+        case 'r':
+          rFlag = true;
           break;
         case '\0':
+          
           break;
       }
     }
-    return 0;
   }
   // if no more flags, run ratio calculations
-
-  return 0;
+  return readFile(arg, rFlag);
   
 }
 
-int readFile() {
-  
-}
-
-void readLicense() {
-  FILE *license;
-  char ch;
-
-  license = fopen(LICENSE_DIR "LICENSE", "r");
-  if (license == NULL) {
-    printf("uirc: cannot find LICENSE in %s\n", LICENSE_DIR);
-    printf("uirc: if you changed the location of the file, recompile uirc with the correct location or move the file back\n");
-    exit(2);
-  } else {
-    printf("uirc is Free and Open Source Software under the BSD 2-Clause License:\n\n");
-    do {
-      ch = fgetc(license);
-      printf("%c", ch);
-    } while (ch != EOF);
+int readFile(file, showRes) char *file; bool showRes;{
+  int width, height, channels, biggestFactor;
+  unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
+  if (img == NULL) {
+    printf("uirc: could not open file %s\n", file);
+    exit(3);
   }
-  fclose(license);
-  return;
+  printf("Opened file \n");
+
+  biggestFactor = getBiggestFactor(width, height);
+  stbi_image_free(img);
+
+  printf("Ratio of %s > %d:%d\n", file, width / biggestFactor, height / biggestFactor);
+  return 0;
+
 }
 
-int main(argc, argv) int argc; char *argv[]; {
+int getBiggestFactor(int width, int height) {
+  int *widthFactors, *heightFactors;
+  int bcf;
+  for (int i = 1; i <= width; i++) {
+    for (int j = 1; j <= height; j++) {
+      if (width % i == 0) {
+        if (height % j == 0 && i == j) {
+          bcf = j;
+        }
+      }
+    }
+  }
+  return bcf;
+}
+
+//void readLicense() {
+//  FILE *license;
+//  char ch;
+//
+//  license = fopen(LICENSE_DIR "LICENSE", "r");
+//  if (license == NULL) {
+//    printf("uirc: cannot find LICENSE in %s\n", LICENSE_DIR);
+//    printf("uirc: if you changed the location of the file, recompile uirc with the correct location or move the file back\n");
+//    exit(2);
+//  } else {
+//    printf("uirc is Free and Open Source Software under the BSD 2-Clause License. You can view it by visiting the GitHub repository for uirc:\nhttps://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
+//    do {
+//      ch = fgetc(license);
+//      printf("%c", ch);
+//    } while (ch != EOF);
+//  }
+//  fclose(license);
+//  return;
+//}
+
+int main(int argc, char *argv[]) {
   //int i;
   char *i;
 
@@ -128,7 +164,7 @@ int main(argc, argv) int argc; char *argv[]; {
   }
 
   for (int i = 1; i < argc; i++) {
-    char *a = argv[1];
+    char *a = argv[i];
     int returned = handleArg(a);
     if (returned != 0)
       return returned;

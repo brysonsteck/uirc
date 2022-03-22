@@ -1,5 +1,15 @@
+# ide directories
 .vscode/
 
+# binaries
 uirc
+d_uirc
 
+# gcc output
 *.o
+
+# common image types
+*.png
+*.jpg
+*.jpeg
+*.bmp

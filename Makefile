@@ -5,7 +5,12 @@ include config.mk
 SRC = uirc.c
 
 uirc: ${SRC}
-	${CC} -DLICENSE_DIR='"./"' -o uirc -O ${SRC}
+	${CC} -o uirc -O ${SRC} -lm
+
+debug: uirc
+	${CC} -g -o d_uirc -O ${SRC} -lm
+	gdb d_uirc
+	rm d_uirc
 
 install: uirc
 	mkdir -p ${PREFIX}

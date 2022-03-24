@@ -26,6 +26,6 @@ stb:
 	@echo "Press ENTER to manually install the stb headers needed instead. Otherwise, quit with ^C"
 	@read
 	mkdir -p ${INCLUDE_PREFIX}/stb
-	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P /usr/include/stb/stb_image.h
+	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P /usr/include/stb/
 
 .PHONY: uirc install stb

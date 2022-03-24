@@ -68,7 +68,7 @@ int readFile(char *file, int rFlag, int req, char* url) {
       return 4;
     } else {
       printf("uirc: could not open file %s\n", file);
-      return 3;
+      exit(3);
     }
   }
 
@@ -83,13 +83,17 @@ int readFile(char *file, int rFlag, int req, char* url) {
 
   if (factor == 1) {
     if (width < height) {
-      printf("%s > 1:%.2f (uneven)\n", file, wuneven);
+      printf("%s > 1:%.2f (uneven)", file, wuneven);
     } else {
-      printf("%s > %.2f:1 (uneven)\n", file, huneven);
+      printf("%s > %.2f:1 (uneven)", file, huneven);
     }
   } else {
-    printf("%s > %d:%d\n", file, width / factor, height / factor);   
+    printf("%s > %d:%d", file, width / factor, height / factor);   
   }
+  if (rFlag == 0) 
+    printf(" [%dx%d]\n", width, height);
+  else
+    printf("\n");
   return 0;
 }
 
@@ -116,10 +120,12 @@ int download(char *url) {
   }
   return 0;
 }
-// end of stack overflow
+// end of stack overflow snippet
+
+int rFlag = 1;
 
 int handleArg(char *arg) {
-  int value, size; 
+  int value, complete;
   char flag, *longFlag, *http, first, firstTwo[3], firstFour[5];
   const char *help;
 
@@ -136,9 +142,6 @@ int handleArg(char *arg) {
 
           "\t'man uirc'\n\n";
 
-  flag = '-';
-  longFlag = "--";
-  http = "http";
   first = arg[0];
 
   firstFour[0] = arg[0];
@@ -150,55 +153,41 @@ int handleArg(char *arg) {
   firstTwo[0] = arg[0];
   firstTwo[1] = arg[1];
   firstTwo[2] = '\0';
-  size = sizeof arg;
 
-  int rFlag = 1;
-
-  // determine if any arguments are flags 
-  if (strcmp(longFlag, firstTwo) == 0) {
-    printf("ok");
-    return 0;
-  } else if (flag == first) {
-    for (int i = 1; i < size; i++) {
-      switch (arg[i]) {
-        case 'h':
-          printf("an unneccessary image ratio calculator (uirc) v%s\n\n", VERSION);
-          printf("Copyright 2022 Bryson Steck\nFree and Open Source under the BSD 2-Clause License\n\n");  
-          printf("%s\n", help);
-          exit(1);
-        case 'l':
-          printf("uirc is Free and Open Source Software under the BSD 2-Clause License.\n");
-          printf("Please read the license regarding copying and distributing uirc.\n");
-          printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
-          exit(1);
-        case 'r':
-          rFlag = 0;
-          exit(1);
-          break;
-        case '\0':
-          break;
-      }
+  if (strcmp("--", firstTwo) == 0 || '-' == first) {
+    if (strcmp("--help", arg) == 0 || strcmp("-h", arg) == 0) {
+      printf("an unneccessary image ratio calculator (uirc) v%s\n\n", VERSION);
+      printf("Copyright 2022 Bryson Steck\nFree and Open Source under the BSD 2-Clause License\n\n");  
+      printf("%s\n", help);
+      exit(1);
+    } else if (strcmp("--license", arg) == 0 || strcmp("-l", arg) == 0) {
+      printf("uirc is Free and Open Source Software under the BSD 2-Clause License.\n");
+      printf("Please read the license regarding copying and distributing uirc.\n");
+      printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
+      exit(1);
+    } else if (strcmp("--res", arg) == 0 || strcmp("-r", arg) == 0) {
+      rFlag = 0;
+      return 0;
+    } else {
+      printf("uirc: invalid argument \"%s\"\nType \"uirc --help\" for help with arguments.\n", arg);
+      exit(5);
     }
   }
-  if (strcmp(http, firstFour) == 0) {
+  if (strcmp("http", firstFour) == 0) {
     download(arg);
-    int complete = readFile("/tmp/uirc.tmp", rFlag, 0, arg);
-    if (complete != 0) {
-      complete = readFile(arg, rFlag, 1, "");
-      if (complete != 0) {
-        exit(4);
-      }
-    }
+    complete = readFile("/tmp/uirc.tmp", rFlag, 0, arg);
+    if (complete != 0) 
+      readFile(arg, rFlag, 1, "");
     remove("/tmp/uirc.tmp");
   } else {
     // if no more flags, run ratio calculations
     return readFile(arg, rFlag, 1, "");
   }
-  
 }
 
 int main(int argc, char *argv[]) {
-  char *i;
+  char *i, *a;
+  int runs;
 
   if (argc <= 1) {
     printf("uirc: at least one argument is required\n");
@@ -206,10 +195,14 @@ int main(int argc, char *argv[]) {
   }
 
   for (int i = 1; i < argc; i++) {
-    char *a = argv[i];
-    int returned = handleArg(a);
-    if (returned != 0)
-      return returned;
+    a = argv[i];
+    handleArg(a);
+    runs++;
+  }
+
+  if (runs < 2 && rFlag == 0) {
+    printf("uirc: at least one file/url is required\n");
+    return 1;
   }
 
   return 0;

@@ -1,5 +1,5 @@
 Installation
-=============
+*************
 
 Instructions are available for the following operating systems:
 
@@ -11,11 +11,12 @@ Linux/BSD
 
 To install ``uirc``, you need to have the following items:
 
+* Git (obviously) 
 * A C compiler (``uirc`` uses ``gcc`` by default, but you can change what compiler you use in the `config.mk file <config.mk>`_.)
 * The cURL libraries
 * The ``stb`` libraries
 
-If you want to install all three at once, follow the instructions for your system below.
+If you want to install all four at once, follow the instructions for your system below.
 
 Debian/Debian-based (Ubuntu, Pop!_OS, etc.)
 --------------------------------------
@@ -67,7 +68,6 @@ FreeBSD/OpenBSD
 .. code:: bash
 
   $ doas pkg_add git curl wget
-  # then, clone the repository and install the 'stb' library:
   $ git clone https://github.com/brysonsteck/uirc && cd uirc
   # in BSD, you must install the 'stb' library manually from GitHub. do this with:
   $ doas make stb
@@ -80,6 +80,10 @@ To build ``uirc`` on BSD, you need to uncomment the OPTIONS line at the bottom o
   $ make
   # or, if you want to install globally, use:
   $ doas make install
+
+Other Linux/UNIX-based systems
+-------------------------------
+If you fit this category, you probably know what you need to build ``uirc``.
 
 Windows
 ========

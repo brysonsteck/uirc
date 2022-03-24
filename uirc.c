@@ -41,9 +41,82 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stb/stb_image.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
-#include <stdbool.h>
 
 const char *VERSION = "0.1.0";
+
+int getBcf(int width, int height) {
+  int *widthFactors, *heightFactors;
+  int bcf;
+  for (int i = 1; i <= width; i++) {
+    for (int j = 1; j <= height; j++) {
+      if (width % i == 0) {
+        if (height % j == 0 && i == j) {
+          bcf = j;
+        }
+      }
+    }
+  }
+  return bcf;
+}
+
+int readFile(char *file, int rFlag, int req, char* url) {
+  int width, height, channels, factor;
+  unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
+  if (img == NULL) {
+    if (req == 0) {
+      printf("uirc: request failed (%s), trying local fs instead\n", url);
+      return 4;
+    } else {
+      printf("uirc: could not open file %s\n", file);
+      return 3;
+    }
+  }
+
+  factor = getBcf(width, height);
+  stbi_image_free(img);
+  double wuneven = ((float) height) / ((float) width);
+  double huneven = ((float) width) / ((float) height);
+
+  if (req == 0) {
+    file = url;
+  }
+
+  if (factor == 1) {
+    if (width < height) {
+      printf("%s > 1:%.2f (uneven)\n", file, wuneven);
+    } else {
+      printf("%s > %.2f:1 (uneven)\n", file, huneven);
+    }
+  } else {
+    printf("%s > %d:%d\n", file, width / factor, height / factor);   
+  }
+  return 0;
+}
+
+// thanks :) https://stackoverflow.com/questions/19404616/c-program-for-downloading-files-with-curl
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+int download(char *url) {
+  CURL *curl;
+  FILE *fp;
+  CURLcode res;
+  char outfilename[FILENAME_MAX] = "/tmp/uirc.tmp";
+  curl = curl_easy_init();
+  if (curl) {
+    fp = fopen(outfilename,"wb");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    fclose(fp);
+  }
+  return 0;
+}
+// end of stack overflow
 
 int handleArg(char *arg) {
   int value, size; 
@@ -79,7 +152,7 @@ int handleArg(char *arg) {
   firstTwo[2] = '\0';
   size = sizeof arg;
 
-  int rFlag;
+  int rFlag = 1;
 
   // determine if any arguments are flags 
   if (strcmp(longFlag, firstTwo) == 0) {
@@ -99,7 +172,8 @@ int handleArg(char *arg) {
           printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
           exit(1);
         case 'r':
-          rFlag = true;
+          rFlag = 0;
+          exit(1);
           break;
         case '\0':
           break;
@@ -110,7 +184,7 @@ int handleArg(char *arg) {
     download(arg);
     int complete = readFile("/tmp/uirc.tmp", rFlag, 0, arg);
     if (complete != 0) {
-      complete = readFile(arg, rFlag, 1);
+      complete = readFile(arg, rFlag, 1, "");
       if (complete != 0) {
         exit(4);
       }
@@ -118,83 +192,12 @@ int handleArg(char *arg) {
     remove("/tmp/uirc.tmp");
   } else {
     // if no more flags, run ratio calculations
-    return readFile(arg, rFlag, 1);
+    return readFile(arg, rFlag, 1, "");
   }
   
 }
 
-int readFile(char *file, int rFlag, int req, char* url) {
-  int width, height, channels, factor;
-  unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
-  if (img == NULL) {
-    if (req == 0) {
-      printf("uirc: request failed (%s), trying local fs instead\n", url);
-      return 4;
-    } else {
-      printf("uirc: could not open file %s\n", file);
-      return 3;
-    }
-  }
-
-  factor = getBcf(width, height);
-  stbi_image_free(img);
-  double wuneven = ((float) height) / ((float) width);
-  double huneven = ((float) width) / ((float) height);
-
-  if (factor == 1) {
-    if (width < height) {
-      printf("%s > 1:%.2f (uneven)\n", file, wuneven);
-    } else {
-      printf("%s > %.2f:1 (uneven)\n", file, huneven);
-    }
-  } else {
-    printf("%s > %d:%d\n", file, width / factor, height / factor);   
-  }
-  return 0;
-}
-
-int getBcf(int width, int height) {
-  int *widthFactors, *heightFactors;
-  int bcf;
-  for (int i = 1; i <= width; i++) {
-    for (int j = 1; j <= height; j++) {
-      if (width % i == 0) {
-        if (height % j == 0 && i == j) {
-          bcf = j;
-        }
-      }
-    }
-  }
-  return bcf;
-}
-
-// thanks :) https://stackoverflow.com/questions/19404616/c-program-for-downloading-files-with-curl
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-    size_t written = fwrite(ptr, size, nmemb, stream);
-    return written;
-}
-
-int download(char *url) {
-  CURL *curl;
-  FILE *fp;
-  CURLcode res;
-  char outfilename[FILENAME_MAX] = "/tmp/uirc.tmp";
-  curl = curl_easy_init();
-  if (curl) {
-    fp = fopen(outfilename,"wb");
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    fclose(fp);
-  }
-  return 0;
-}
-// end of stack overflow
-
 int main(int argc, char *argv[]) {
-  //int i;
   char *i;
 
   if (argc <= 1) {
@@ -211,5 +214,4 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
 

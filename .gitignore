@@ -13,3 +13,6 @@ d_uirc
 *.jpg
 *.jpeg
 *.bmp
+
+# my folder of test images
+test/

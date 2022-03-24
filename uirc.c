@@ -40,13 +40,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stb/stb_image.h>
 #include <curl/curl.h>
+#include <curl/easy.h>
 #include <stdbool.h>
 
 const char *VERSION = "0.1.0";
 
-int handleArg(arg) char *arg; {
+int handleArg(char *arg) {
   int value, size; 
-  char flag, *longFlag, first, firstTwo[3];
+  char flag, *longFlag, *http, first, firstTwo[3], firstFour[5];
   const char *help;
 
   help =  "usage: uirc [OPTIONS] IMAGE1 [IMAGE2] [...]\n\n"
@@ -64,14 +65,21 @@ int handleArg(arg) char *arg; {
 
   flag = '-';
   longFlag = "--";
+  http = "http";
   first = arg[0];
+
+  firstFour[0] = arg[0];
+  firstFour[1] = arg[1];
+  firstFour[2] = arg[2];
+  firstFour[3] = arg[3];
+  firstFour[4] = '\0';
 
   firstTwo[0] = arg[0];
   firstTwo[1] = arg[1];
   firstTwo[2] = '\0';
   size = sizeof arg;
 
-  bool rFlag;
+  int rFlag;
 
   // determine if any arguments are flags 
   if (strcmp(longFlag, firstTwo) == 0) {
@@ -82,44 +90,70 @@ int handleArg(arg) char *arg; {
       switch (arg[i]) {
         case 'h':
           printf("an unneccessary image ratio calculator (uirc) v%s\n\n", VERSION);
-          printf("Copyright 2022 Bryson Steck\n\n\n");  
+          printf("Copyright 2022 Bryson Steck\nFree and Open Source under the BSD 2-Clause License\n\n");  
           printf("%s\n", help);
           exit(1);
         case 'l':
-          //readLicense();
+          printf("uirc is Free and Open Source Software under the BSD 2-Clause License.\n");
+          printf("Please read the license regarding copying and distributing uirc.\n");
+          printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
           exit(1);
         case 'r':
           rFlag = true;
           break;
         case '\0':
-          
           break;
       }
     }
   }
-  // if no more flags, run ratio calculations
-  return readFile(arg, rFlag);
+  if (strcmp(http, firstFour) == 0) {
+    download(arg);
+    int complete = readFile("/tmp/uirc.tmp", rFlag, 0, arg);
+    if (complete != 0) {
+      complete = readFile(arg, rFlag, 1);
+      if (complete != 0) {
+        exit(4);
+      }
+    }
+    remove("/tmp/uirc.tmp");
+  } else {
+    // if no more flags, run ratio calculations
+    return readFile(arg, rFlag, 1);
+  }
   
 }
 
-int readFile(file, showRes) char *file; bool showRes;{
-  int width, height, channels, biggestFactor;
+int readFile(char *file, int rFlag, int req, char* url) {
+  int width, height, channels, factor;
   unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
   if (img == NULL) {
-    printf("uirc: could not open file %s\n", file);
-    exit(3);
+    if (req == 0) {
+      printf("uirc: request failed (%s), trying local fs instead\n", url);
+      return 4;
+    } else {
+      printf("uirc: could not open file %s\n", file);
+      return 3;
+    }
   }
-  printf("Opened file \n");
 
-  biggestFactor = getBiggestFactor(width, height);
+  factor = getBcf(width, height);
   stbi_image_free(img);
+  double wuneven = ((float) height) / ((float) width);
+  double huneven = ((float) width) / ((float) height);
 
-  printf("Ratio of %s > %d:%d\n", file, width / biggestFactor, height / biggestFactor);
+  if (factor == 1) {
+    if (width < height) {
+      printf("%s > 1:%.2f (uneven)\n", file, wuneven);
+    } else {
+      printf("%s > %.2f:1 (uneven)\n", file, huneven);
+    }
+  } else {
+    printf("%s > %d:%d\n", file, width / factor, height / factor);   
+  }
   return 0;
-
 }
 
-int getBiggestFactor(int width, int height) {
+int getBcf(int width, int height) {
   int *widthFactors, *heightFactors;
   int bcf;
   for (int i = 1; i <= width; i++) {
@@ -134,25 +168,30 @@ int getBiggestFactor(int width, int height) {
   return bcf;
 }
 
-//void readLicense() {
-//  FILE *license;
-//  char ch;
-//
-//  license = fopen(LICENSE_DIR "LICENSE", "r");
-//  if (license == NULL) {
-//    printf("uirc: cannot find LICENSE in %s\n", LICENSE_DIR);
-//    printf("uirc: if you changed the location of the file, recompile uirc with the correct location or move the file back\n");
-//    exit(2);
-//  } else {
-//    printf("uirc is Free and Open Source Software under the BSD 2-Clause License. You can view it by visiting the GitHub repository for uirc:\nhttps://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
-//    do {
-//      ch = fgetc(license);
-//      printf("%c", ch);
-//    } while (ch != EOF);
-//  }
-//  fclose(license);
-//  return;
-//}
+// thanks :) https://stackoverflow.com/questions/19404616/c-program-for-downloading-files-with-curl
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+int download(char *url) {
+  CURL *curl;
+  FILE *fp;
+  CURLcode res;
+  char outfilename[FILENAME_MAX] = "/tmp/uirc.tmp";
+  curl = curl_easy_init();
+  if (curl) {
+    fp = fopen(outfilename,"wb");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    res = curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+    fclose(fp);
+  }
+  return 0;
+}
+// end of stack overflow
 
 int main(int argc, char *argv[]) {
   //int i;
@@ -169,6 +208,8 @@ int main(int argc, char *argv[]) {
     if (returned != 0)
       return returned;
   }
+
+  return 0;
 }
 
 

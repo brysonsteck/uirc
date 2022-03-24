@@ -2,6 +2,7 @@ Installation
 =============
 
 Instructions are available for the following operating systems:
+
 * `Linux/BSD <#linuxbsd>`_
 * `Windows <#windows>`_
 

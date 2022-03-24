@@ -30,16 +30,4 @@ Or you could I guess, I won't stop you. There's just *way* more convenient (and 
 I've made my decision. How do I install?
 ----------------------------------------
 
-Ah, the UNIX community. Stubborn about always wanting to use command line tools over convenience. It just warms my heart.
-
-In order to build ``uirc``, you must have ``make`` or another compatible tool for Makefiles installed. You will also need the Public Domain ``stb`` header files, all of which can be installed through your system's package manager. You also can manually install the single header file ``uirc`` needs if you don't want the other headers. You can do this by running::
-
-  $ make stb
-
-Once the headers are installed, you can simply run this command to make the binary::
-
-  $ make
-
-Or, if you would like to install ``uirc`` to your system globally, run::
-
-  $ make install
+Ah, the UNIX community. Stubborn about always wanting to use command line tools over convenience. It just warms my heart. Read the `INSTALL <INSTALL.rst>`_ file for instructions on how to install on your system.

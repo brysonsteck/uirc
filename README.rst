@@ -10,6 +10,29 @@ Well, it's an unnecessary image ratio calculator.
 
 It takes an image as an argument in the form of a file on the local file system or a link to an image on a web server, and returns the ratio of the image. That's literally it.
 
+Perhaps I can give you some visual representation. Let's say you have an image of a neat little `background of an unrealistically oversaturated landscape <https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.hdwallpapers.in%2Fdownload%2Fsunset_scenery-1920x1080.jpg&f=1&nofb=1>`_ and want to make sure it fully fits in your 16:9 monitor::
+
+  $ uirc unrealistically-oversaturated-landscape.png
+  unrealistically-oversaturated-landscape.png > 16:9
+
+Neat! What about images that don't really play nice? Take this lovely image of Peter Griffin `here <https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png>`_. Let's throw him into uirc::
+
+  $ uirc peter.jpg
+  peter.jpg > 1:1.45 (uneven)
+
+Good to know! I can also give the ``-r`` flag to display the resolution if I so incline, or even find out the ratio of both images::
+
+  $ uirc -r peter.jpg unrealistically-oversaturated-landscape.png
+  peter.jpg > 1:1.45 (uneven) [247x359]
+  unrealistically-oversaturated-landscape.png > 16:9 [1920x1080]
+
+What if I don't want my wife to find a photo of Peter Griffin on my laptop? Well, you can use a link instead::
+
+  $ uirc https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png
+  https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png > 1:1.45 (uneven)
+ 
+There's also a help menu with the ``-h`` flag if you really need it. 
+
 Why does this exist? 
 --------------------
 

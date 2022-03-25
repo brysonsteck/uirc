@@ -70,7 +70,7 @@ int readFile(char *file, int rFlag, int req, char* url) {
   unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
   if (img == NULL) {
     if (req == 0) {
-      printf("uirc: request failed (%s), trying local fs instead\n", url);
+      printf("FAIL\nuirc: request failed (%s), trying local fs instead\n", url);
       return 4;
     } else if (access(file, F_OK) != 0) {
       printf("uirc: %s: No such file or directory\n", file);
@@ -80,6 +80,9 @@ int readFile(char *file, int rFlag, int req, char* url) {
       exit(3);
     }
   }
+
+  if (req == 0)
+    printf("ok\n");
 
   factor = getBcf(width, height);
   stbi_image_free(img);
@@ -139,7 +142,7 @@ int download(char *url) {
     curl_easy_cleanup(curl);
     fclose(fp);
   }
-  printf("ok\n");
+
   return 0;
 }
 // end of stack overflow snippet

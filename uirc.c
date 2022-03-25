@@ -41,8 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stb/stb_image.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <unistd.h>
 
 const char *VERSION = "0.1.0";
+int rFlag = 1;
 
 int getBcf(int width, int height) {
   int *widthFactors, *heightFactors;
@@ -59,6 +61,10 @@ int getBcf(int width, int height) {
   return bcf;
 }
 
+char imgUrlName(char *url) {
+  
+}
+
 int readFile(char *file, int rFlag, int req, char* url) {
   int width, height, channels, factor;
   unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
@@ -66,8 +72,11 @@ int readFile(char *file, int rFlag, int req, char* url) {
     if (req == 0) {
       printf("uirc: request failed (%s), trying local fs instead\n", url);
       return 4;
+    } else if (access(file, F_OK) != 0) {
+      printf("uirc: %s: No such file or directory\n", file);
+      exit(6);
     } else {
-      printf("uirc: could not open file %s\n", file);
+      printf("uirc: could not open file %s: %s\n", file, stbi_failure_reason());
       exit(3);
     }
   }
@@ -78,7 +87,18 @@ int readFile(char *file, int rFlag, int req, char* url) {
   double huneven = ((float) width) / ((float) height);
 
   if (req == 0) {
-    file = url;
+    char *token, *next = "";
+
+    token = strtok(url, "/");
+
+    while (1) {
+      if (next == NULL) {
+        file = token;
+        break;
+      }
+      token = next;
+      next = strtok(NULL, "/");
+    }
   }
 
   if (factor == 1) {
@@ -107,8 +127,9 @@ int download(char *url) {
   CURL *curl;
   FILE *fp;
   CURLcode res;
-  char outfilename[FILENAME_MAX] = "/tmp/uirc.tmp";
+  char outfilename[15] = "/tmp/uirc.tmp";
   curl = curl_easy_init();
+
   if (curl) {
     fp = fopen(outfilename,"wb");
     curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -118,11 +139,10 @@ int download(char *url) {
     curl_easy_cleanup(curl);
     fclose(fp);
   }
+  printf("ok\n");
   return 0;
 }
 // end of stack overflow snippet
-
-int rFlag = 1;
 
 int handleArg(char *arg) {
   int value, complete;
@@ -140,7 +160,7 @@ int handleArg(char *arg) {
           "help:\n"
           "If you get stuck using uirc, you can read the manpage for uirc:\n\n"
 
-          "\t'man uirc'\n\n";
+          "\t'man uirc'\n";
 
   first = arg[0];
 
@@ -173,12 +193,16 @@ int handleArg(char *arg) {
       exit(5);
     }
   }
+
   if (strcmp("http", firstFour) == 0) {
+    printf("downloading \"%s\"...", arg);
+    fflush(stdout);
     download(arg);
     complete = readFile("/tmp/uirc.tmp", rFlag, 0, arg);
     if (complete != 0) 
       readFile(arg, rFlag, 1, "");
-    remove("/tmp/uirc.tmp");
+    else
+      remove("/tmp/uirc.tmp");
   } else {
     // if no more flags, run ratio calculations
     return readFile(arg, rFlag, 1, "");

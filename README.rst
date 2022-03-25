@@ -29,7 +29,7 @@ Good to know! I can also give the ``-r`` flag to display the resolution if I so 
 What if I don't want my wife to find a photo of Peter Griffin on my laptop? Well, you can use a link instead::
 
   $ uirc https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png
-  https://upload.wikimedia.org/wikipedia/en/c/c2/Peter_Griffin.png > 1:1.45 (uneven)
+  Peter_Griffin.png > 1:1.45 (uneven)
  
 There's also a help menu with the ``-h`` flag if you really need it. 
 

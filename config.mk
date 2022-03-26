@@ -2,6 +2,9 @@
 PREFIX = /usr/local/bin
 LIB_PREFIX = ${PREFIX}/lib
 INCLUDE_PREFIX = /usr/include
+# comment the line above and uncomment the following line
+# if you are building on macOS, otherwise it is optional
+#INCLUDE_PREFIX = /usr/local/include
 
 # manual install location
 MANPREFIX = ${PREFIX}/share/man

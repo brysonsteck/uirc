@@ -4,6 +4,7 @@ Installation
 Instructions are available for the following operating systems:
 
 * `Linux/BSD <#linuxbsd>`_
+* `macOS <#macos>`_
 * `Windows <#windows>`_
 
 Linux/BSD
@@ -84,6 +85,27 @@ To build ``uirc`` on BSD, you need to uncomment the OPTIONS line at the bottom o
 Other Linux/UNIX-based systems
 -------------------------------
 If you fit this category, you probably know what you need to build ``uirc``.
+
+macOS
+======
+
+To build ``uirc`` on macOS, make sure `brew <https://brew.sh>`_ and the Xcode Command Line tools (run ``xcode-select --install`` to make sure) are installed, then follow the instructions below.
+
+.. code:: bash
+
+  % brew install curl wget
+  % git clone https://github.com/brysonsteck/uirc && cd uirc
+
+You will also need to uncomment the INCLUDE_PREFIX line at the top of the `config.mk <config.mk>`_ file to make sure that the stb library is downloaded correctly.
+
+.. code:: bash
+
+  # in macOS, you must install the 'stb' library manually from GitHub. do this with:
+  % make stb
+  # build uirc with:
+  % make
+  # or, if you want to install globally, use:
+  % make install
 
 Windows
 ========

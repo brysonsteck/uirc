@@ -1,0 +1,128 @@
+.TH UIRC 1 "Updated March 26, 2022" "Bryson Steck"
+.SH NAME
+uirc \- an unneccessary image ratio calculator
+.SH SYNOPSIS
+.B uirc
+[OPTIONS] IMAGE/URL1 [IMAGE/URL2]...
+.SH DESCRIPTION
+uirc is, well, an unnecessary image ratio calculator for us UNIX nerds. It takes files with an image format and returns the ratio of the image.
+.P 
+Here are some examples for you. You can use uirc in three different ways.
+.P
+.B 1. Using files on the local filesystem
+.P
+You can get the ratio of different images on the local filesystem. You can do this by supplying the name of the file in order to get the ratio of the image.
+.P
+  $ uirc image1.png
+  image1.png > 4:3
+.P
+  $ uirc homework/yes-this-is-legitimately-homework/quadratic_formula.jpg
+  homework/yes-this-is-legitimately-homework/quadratic_formula.jpg > 2:1
+.P
+You may also run into images where their ratios don't factor down nicely. So, uirc will give you an approximate by giving you a decimal version.
+.P
+  $ uirc /usr/share/imgs/popcorn.bmp
+  /usr/share/imgs/popcorn.bmp > 1.24:1 (uneven)
+.P
+.B 2. Downloading images from a web server
+.P
+You can also get the ratio of images present on a web server. By supplying the URL to an image file, uirc will download the image inside the /tmp folder of your system, evaluate it, then remove it. That isn't important though, you will just end up seeing the name of the file on the web server anyways.
+.P
+  $ uirc https://brysonsteck.net/resurrection-sc.png
+  downloading "https://brysonsteck.net/resurrection-sc.png"...ok
+  resurrection-sc.png > 1.68:1 (uneven)
+.P
+  $ uirc http://via.placeholder.com/1920x1080
+  downloading "http://via.placeholder.com/1920x1080"...ok
+  1920x1080 > 16:9
+.P
+.B 3. Multiple files and URLs
+.P
+uirc can take multiple arguments of images at once and will evaluate them in order. You can do multiple local files, multiple URLs, or multiple of both.
+.P
+  $ uirc image1.png homework/yes-this-is-legitimately-homework/quadratic_formula.jpg /usr/share/imgs/popcorn.bmp
+  image1.png > 4:3
+  homework/yes-this-is-legitimately-homework/quadratic_formula.jpg > 2:1
+  /usr/share/imgs/popcorn.bmp > 1.24:1 (uneven)
+.P
+  $ uirc https://brysonsteck.net/resurrection-sc.png http://via.placeholder.com/1920x1080
+  downloading "https://brysonsteck.net/resurrection-sc.png"...ok
+  resurrection-sc.png > 1.68:1 (uneven)
+  downloading "http://via.placeholder.com/1920x1080"...ok
+  1920x1080 > 16:9
+.P
+  $ uirc http://via.placeholder.com/1920x1080 /usr/share/imgs/popcorn.bmp
+  downloading "http://via.placeholder.com/1920x1080"...ok
+  1920x1080 > 16:9
+  /usr/share/imgs/popcorn.bmp > 1.24:1 (uneven)
+.P
+.SH OPTIONS
+.sp 1
+Informational:
+.TP 0.5i
+\fB\-h\fR, \fB\-\-help\fR
+Display a brief help message on the command line.
+.TP 0.5i
+\fB\-l\fR, \fB\-\-license\fR
+Display the brief license disclaimer for uirc on the command line. You can also scroll down to the end of this manpage to view the whole license. 
+.TP 0.5i
+\fB\-v\fR, \fB\-\-version\fR
+Display the version of uirc on the command line.
+.P
+Functional:
+.TP 0.5i
+\fB\-r\fR, \fB\-\-res\fR
+Display the resolution of the image(s) in addition to the ratio.
+.P
+.SH AUTHOR
+.B Bryson Steck 
+( GitHub: @brysonsteck )
+.br
+steck.bryson@gmail.com
+.br
+.IR https://brysonsteck.net
+.P
+Please report any bugs/provide feedback for uirc by creating an issue on the GitHub repository: 
+.IR https://github.com/brysonsteck/uirc
+.P
+.SH LICENSE
+uirc is Free and Open Source Software under the BSD 2-Clause License.
+.P
+Copyright (c) 2022, Bryson Steck
+.br
+All rights reserved.
+.P
+Redistribution and use in source and binary forms, with or without
+.br
+modification, are permitted provided that the following conditions are met:
+.P
+1. Redistributions of source code must retain the above copyright notice, this
+.br
+   list of conditions and the following disclaimer.
+.P
+2. Redistributions in binary form must reproduce the above copyright notice,
+.br
+   this list of conditions and the following disclaimer in the documentation
+.br
+   and/or other materials provided with the distribution.
+.P
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+.br
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.br
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+.br
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+.br
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.br
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+.br
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+.br
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+.br
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.br
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.P

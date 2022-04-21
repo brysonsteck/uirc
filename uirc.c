@@ -35,9 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stb/stb_image.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -59,10 +56,6 @@ int getBcf(int width, int height) {
     }
   }
   return bcf;
-}
-
-char imgUrlName(char *url) {
-  
 }
 
 int readFile(char *file, int rFlag, int req, char* url) {
@@ -152,18 +145,19 @@ int handleArg(char *arg) {
   char flag, *longFlag, *http, first, firstTwo[3], firstFour[5];
   const char *help;
 
-  help =  "usage: uirc [OPTIONS] IMAGE1 [IMAGE2] [...]\n\n"
+  help =  "USAGE: uirc [OPTIONS] IMAGE1 [IMAGE2] [...]\n\n"
 
           "OPTIONS:\n"
-          "\t-h\t> Display this message\n"
-          "\t-l\t> Display the license disclaimer for uirc (BSD 2-Clause)\n\n"
+          "informational:\n"
+          "  -h, --help   \t: Display this message\n"
+          "  -l, --license\t: Display the license disclaimer for uirc (BSD 2-Clause)\n"
+          "  -v, --version\t: Display the version of uirc\n\n"
 
-          "\t-r\t> Display the resolution of the image (in addition to the ratio)\n\n"
+          "functional:\n"
+          "  -r, --res    \t: Display the resolution of the image (in addition to the ratio)\n\n"
 
-          "help:\n"
-          "If you get stuck using uirc, you can read the manpage for uirc:\n\n"
-
-          "\t'man uirc'\n";
+          "HELP:\n"
+          "For more information on how to use uirc, open the man page uirc(1).\n";
 
   first = arg[0];
 
@@ -191,6 +185,9 @@ int handleArg(char *arg) {
     } else if (strcmp("--res", arg) == 0 || strcmp("-r", arg) == 0) {
       rFlag = 0;
       return 0;
+    } else if (strcmp("--version", arg) == 0 || strcmp("-v", arg) == 0) {
+      printf("uirc v%s", VERSION);
+      exit(1);
     } else {
       printf("uirc: invalid argument \"%s\"\nType \"uirc --help\" for help with arguments.\n", arg);
       exit(5);
@@ -210,6 +207,7 @@ int handleArg(char *arg) {
     // if no more flags, run ratio calculations
     return readFile(arg, rFlag, 1, "");
   }
+  return 0;
 }
 
 int main(int argc, char *argv[]) {

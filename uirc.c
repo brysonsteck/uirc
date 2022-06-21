@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 const char *VERSION = "0.1.0";
 int rFlag = 1;
@@ -56,6 +57,10 @@ int getBcf(int width, int height) {
     }
   }
   return bcf;
+}
+
+bool compare_float(float a, float b) {
+  return fabs(a-b) < 0.0000001;
 }
 
 int readFile(char *file, int rFlag, int req, char* url) {
@@ -97,6 +102,8 @@ int readFile(char *file, int rFlag, int req, char* url) {
     }
   }
 
+  // see if uneven values equal normal aspect ratios 
+
   if (factor == 1) {
     if (width < height) {
       printf("%s > 1:%.2f (uneven)", file, wuneven);
@@ -125,6 +132,7 @@ int download(char *url) {
   CURLcode res;
   char outfilename[15] = "/tmp/uirc.tmp";
   curl = curl_easy_init();
+  long returnCode = 0;
 
   if (curl) {
     fp = fopen(outfilename,"wb");
@@ -132,17 +140,19 @@ int download(char *url) {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
     res = curl_easy_perform(curl);
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, returnCode);
     curl_easy_cleanup(curl);
     fclose(fp);
   }
 
+  printf("%ld\n", returnCode);
   return 0;
 }
 // end of stack overflow snippet
 
 int handleArg(char *arg) {
-  int value, complete;
-  char flag, *longFlag, *http, first, firstTwo[3], firstFour[5];
+  int complete;
+  char flag, first, firstTwo[3], firstFour[5];
   const char *help;
 
   help =  "USAGE: uirc [OPTIONS] IMAGE1 [IMAGE2] [...]\n\n"
@@ -212,7 +222,7 @@ int handleArg(char *arg) {
 
 int main(int argc, char *argv[]) {
   char *i, *a;
-  int runs;
+  int runs, code, arg_code;
 
   if (argc <= 1) {
     printf("uirc: at least one argument is required\n");
@@ -221,7 +231,9 @@ int main(int argc, char *argv[]) {
 
   for (int i = 1; i < argc; i++) {
     a = argv[i];
-    handleArg(a);
+    arg_code = handleArg(a);
+    if (arg_code > code)
+      code = arg_code;
     runs++;
   }
 

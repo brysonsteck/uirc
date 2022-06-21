@@ -1,9 +1,9 @@
-.TH UIRC 1 "Updated March 26, 2022" "Bryson Steck"
+.TH UIRC 1 "Updated June 20, 2022" "Bryson Steck"
 .SH NAME
 uirc \- an unneccessary image ratio calculator
 .SH SYNOPSIS
 .B uirc
-[OPTIONS] IMAGE/URL1 [IMAGE/URL2]...
+[\fB-hlvr\fR] [\fIarguments\fR ...]
 .SH DESCRIPTION
 uirc is, well, an unnecessary image ratio calculator for us UNIX nerds. It takes files with an image format and returns the ratio of the image.
 .P 
@@ -11,7 +11,7 @@ Here are some examples for you. You can use uirc in three different ways.
 .P
 .B 1. Using files on the local filesystem
 .P
-You can get the ratio of different images on the local filesystem. You can do this by supplying the name of the file in order to get the ratio of the image.
+You can get the ratio of different images on the local filesystem. You can do this by supplying the name of the file as an \fIargument\fR in order to get the ratio of the image.
 .P
   $ uirc image1.png
   image1.png > 4:3
@@ -26,7 +26,7 @@ You may also run into images where their ratios don't factor down nicely. So, ui
 .P
 .B 2. Downloading images from a web server
 .P
-You can also get the ratio of images present on a web server. By supplying the URL to an image file, uirc will download the image inside the /tmp folder of your system, evaluate it, then remove it. That isn't important though, you will just end up seeing the name of the file on the web server anyways.
+You can also get the ratio of images present on a web server. By supplying the URL to an image file as an \fIargument\fR, uirc will download the image inside the /tmp folder of your system, evaluate it, then remove it. That isn't important though, you will just end up seeing the name of the file on the web server anyways.
 .P
   $ uirc https://brysonsteck.net/resurrection-sc.png
   downloading "https://brysonsteck.net/resurrection-sc.png"...ok
@@ -38,7 +38,7 @@ You can also get the ratio of images present on a web server. By supplying the U
 .P
 .B 3. Multiple files and URLs
 .P
-uirc can take multiple arguments of images at once and will evaluate them in order. You can do multiple local files, multiple URLs, or multiple of both.
+uirc can take multiple \fIarguments\fR of images at once and will evaluate them in order. You can do multiple local files, multiple URLs, or multiple of both.
 .P
   $ uirc image1.png homework/yes-this-is-legitimately-homework/quadratic_formula.jpg /usr/share/imgs/popcorn.bmp
   image1.png > 4:3
@@ -57,8 +57,7 @@ uirc can take multiple arguments of images at once and will evaluate them in ord
   /usr/share/imgs/popcorn.bmp > 1.24:1 (uneven)
 .P
 .SH OPTIONS
-.sp 1
-Informational:
+.sp
 .TP 0.5i
 \fB\-h\fR, \fB\-\-help\fR
 Display a brief help message on the command line.
@@ -69,7 +68,6 @@ Display the brief license disclaimer for uirc on the command line. You can also 
 \fB\-v\fR, \fB\-\-version\fR
 Display the version of uirc on the command line.
 .P
-Functional:
 .TP 0.5i
 \fB\-r\fR, \fB\-\-res\fR
 Display the resolution of the image(s) in addition to the ratio.
@@ -78,9 +76,9 @@ Display the resolution of the image(s) in addition to the ratio.
 .B Bryson Steck 
 ( GitHub: @brysonsteck )
 .br
-steck.bryson@gmail.com
+brysonsteck@protonmail.com
 .br
-.IR https://brysonsteck.net
+.IR https://brysonsteck.xyz
 .P
 Please report any bugs/provide feedback for uirc by creating an issue on the GitHub repository: 
 .IR https://github.com/brysonsteck/uirc

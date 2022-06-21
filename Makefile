@@ -5,21 +5,26 @@ include config.mk
 SRC = uirc.c
 
 uirc: ${SRC}
-	${CC}${OPTIONS} -o uirc -O3 ${SRC} -lcurl -lm 
+	${CC} ${OPTIONS} -o uirc ${SRC} -lcurl -lm 
 
 debug: uirc
-	${CC} -g${OPTIONS} -o d_uirc -O3 ${SRC} -lcurl -lm 
+	${CC} -g ${OPTIONS} -o d_uirc -O3 ${SRC} -lcurl -lm 
 	gdb d_uirc
 	rm d_uirc
 
+clean:
+	rm ./uirc
+
 install: uirc
-	mkdir -p ${PREFIX}
-	cp -f uirc ${PREFIX}
-	chmod 755 ${PREFIX}/uirc
+	mkdir -p ${PREFIX}/bin
+	cp -f uirc ${PREFIX}/bin
+	chmod 755 ${PREFIX}/bin/uirc
+	mkdir -p ${MAN_PREFIX}/man1
+	cp -f uirc.1 ${MAN_PREFIX}/man1
 
 uninstall:
-	rm ${PREFIX}/uirc
-	test -s ${INCLUDE_PREFIX}/uirc && rm -r ${INCLUDE_PREFIX}/uirc
+	rm ${PREFIX}/bin/uirc
+	rm ${MAN_PREFIX}/man1/uirc.1
 
 stb:
 	@echo "It is best to download the stb library from your system's package manager."
@@ -28,4 +33,4 @@ stb:
 	mkdir -p ${INCLUDE_PREFIX}/stb
 	wget https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -P ${INCLUDE_PREFIX}/stb
 
-.PHONY: uirc install stb
+.PHONY: uirc clean install uninstall stb

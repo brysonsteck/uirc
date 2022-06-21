@@ -1,10 +1,14 @@
 # install location
-PREFIX = /usr/local/bin
+PREFIX = /usr/local
+MAN_PREFIX = ${PREFIX}/share/man
 LIB_PREFIX = ${PREFIX}/lib
 INCLUDE_PREFIX = /usr/include
 # comment the line above and uncomment the following line
 # if you are building on macOS, otherwise it is optional
 #INCLUDE_PREFIX = /usr/local/include
+
+# additional compiler options
+OPTIONS = -O2
 
 # manual install location
 MANPREFIX = ${PREFIX}/share/man

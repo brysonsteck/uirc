@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 
 const char *VERSION = "0.1.0";
+bool singular = false;
 int rFlag = 1;
 
 int getBcf(int width, int height) {
@@ -60,12 +61,14 @@ int getBcf(int width, int height) {
 }
 
 bool compare_float(float a, float b) {
-  return fabs(a-b) < 0.0000001;
+  return fabs(a-b) < 0.001;
 }
 
 int readFile(char *file, int rFlag, int req, char* url) {
+  char *displayfile;
   int width, height, channels, factor;
   unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
+
   if (img == NULL) {
     if (req == 0) {
       printf("FAIL\nuirc: request failed (%s), trying local fs instead\n", url);
@@ -102,21 +105,145 @@ int readFile(char *file, int rFlag, int req, char* url) {
     }
   }
 
-  // see if uneven values equal normal aspect ratios 
+  if (singular)
+    displayfile = "";
+  else {
+    displayfile = (char*) malloc(CHAR_MAX);
+    strcpy(displayfile, file);
+    strcat(displayfile, " > ");
+  }
 
-  if (factor == 1) {
-    if (width < height) {
-      printf("%s > 1:%.2f (uneven)", file, wuneven);
-    } else {
-      printf("%s > %.2f:1 (uneven)", file, huneven);
+  // see if uneven values equal normal aspect ratios
+  // aspect ratios obtained from https://en.wikipedia.org/wiki/Aspect_ratio_(image)
+  bool bestFit = false;
+
+  if (width < height) {
+    if (compare_float(wuneven, 1.77777777)) {
+      // 9:16
+      printf("%s9:16", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.33333333)) {
+      // 3:4
+      printf("%s3:4", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 0.46153846)) {
+      // 6:13
+      printf("%s6:13", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.25)) {
+      // 4:5
+      printf("%s4:5", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.5)) {
+      // 2:3
+      printf("%s2:3", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.6)) {
+      // 10:16
+      printf("%s10:16", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 2.37037037)) {
+      // 27:64
+      printf("%s27:64", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 3.55555555)) {
+      // 9:32
+      printf("%s9:32", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.66666666)) {
+      // 3:5
+      printf("%s3:5", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.6180)) {
+      // golden ratio
+      printf("%s1:1.6180 (GOLDEN RATIO!!!!)", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.85)) {
+      // 1:1.85
+      printf("%s1:1.85", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 2.33333333)) {
+      // 9:21
+      printf("%s9:21", displayfile);
+      bestFit = true;
+    } else if (compare_float(wuneven, 1.55555555)) {
+      // 9:14
+      printf("%s9:14", displayfile);
+      bestFit = true;
     }
   } else {
-    printf("%s > %d:%d", file, width / factor, height / factor);   
+    if (compare_float(huneven, 1.77777777)) {
+      // 16:9
+      printf("%s16:9", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.33333333)) {
+      // 4:3
+      printf("%s4:3", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 0.46153846)) {
+      // 13:6
+      printf("%s13:6", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.25)) {
+      // 5:4
+      printf("%s5:4", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.5)) {
+      // 3:2
+      printf("%s3:2", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.6)) {
+      // 16:10
+      printf("%s16:10", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 2.37037037)) {
+      // 64:27
+      printf("%s64:27", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 3.55555555)) {
+      // 32:9
+      printf("%s32:9", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.66666666)) {
+      // 5:3
+      printf("%s5:3", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.6180)) {
+      // golden ratio
+      printf("%s1.6180:1 (GOLDEN RATIO!!!!)", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.85)) {
+      // 1.85:1
+      printf("%s1.85:1", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 2.33333333)) {
+      // 21:9
+      printf("%s21:9", displayfile);
+      bestFit = true;
+    } else if (compare_float(huneven, 1.55555555)) {
+      // 14:9
+      printf("%s14:9", displayfile);
+      bestFit = true;
+    }
   }
+
+  if (!bestFit) {
+    if (factor == 1) {
+      if (width < height) {
+        printf("%s1:%.2f (uneven)", displayfile, wuneven);
+      } else {
+        printf("%s%.2f:1 (uneven)", displayfile, huneven);
+      }
+    } else {
+      printf("%s%d:%d", displayfile, width / factor, height / factor);
+    }
+  }
+
   if (rFlag == 0) 
     printf(" [%dx%d]\n", width, height);
   else
     printf("\n");
+
   return 0;
 }
 
@@ -145,12 +272,12 @@ int download(char *url) {
     fclose(fp);
   }
 
-  printf("%ld\n", returnCode);
+  //printf("%ld\n", returnCode);
   return 0;
 }
 // end of stack overflow snippet
 
-int handleArg(char *arg) {
+int handleArg(char *arg, int argc) {
   int complete;
   char flag, first, firstTwo[3], firstFour[5];
   const char *help;
@@ -193,7 +320,13 @@ int handleArg(char *arg) {
       printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
       exit(1);
     } else if (strcmp("--res", arg) == 0 || strcmp("-r", arg) == 0) {
+      if (rFlag == 0) {
+        printf("uirc: -r / --res flag is used way too many times\n");
+        exit(9);
+      }
       rFlag = 0;
+      if (argc == 3)
+        singular = true;
       return 0;
     } else if (strcmp("--version", arg) == 0 || strcmp("-v", arg) == 0) {
       printf("uirc v%s", VERSION);
@@ -203,6 +336,9 @@ int handleArg(char *arg) {
       exit(5);
     }
   }
+
+  if (argc == 2)
+    singular = true;
 
   if (strcmp("http", firstFour) == 0) {
     printf("downloading \"%s\"...", arg);
@@ -217,6 +353,7 @@ int handleArg(char *arg) {
     // if no more flags, run ratio calculations
     return readFile(arg, rFlag, 1, "");
   }
+
   return 0;
 }
 
@@ -231,7 +368,7 @@ int main(int argc, char *argv[]) {
 
   for (int i = 1; i < argc; i++) {
     a = argv[i];
-    arg_code = handleArg(a);
+    arg_code = handleArg(a, argc);
     if (arg_code > code)
       code = arg_code;
     runs++;

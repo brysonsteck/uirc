@@ -43,11 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const char *VERSION = "0.1.0";
 bool singular = false;
-int rFlag = 1;
+bool rFlag = false;
 
 int getBcf(int width, int height) {
   int *widthFactors, *heightFactors;
-  int bcf;
+  unsigned int bcf;
   for (int i = 1; i <= width; i++) {
     for (int j = 1; j <= height; j++) {
       if (width % i == 0) {
@@ -64,9 +64,9 @@ bool compare_float(float a, float b) {
   return fabs(a-b) < 0.001;
 }
 
-int readFile(char *file, int rFlag, int req, char* url) {
+int readFile(char *file, bool rFlag, unsigned int req, char* url) {
   char *displayfile;
-  int width, height, channels, factor;
+  unsigned int width, height, channels, factor;
   unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
 
   if (img == NULL) {
@@ -77,8 +77,13 @@ int readFile(char *file, int rFlag, int req, char* url) {
       printf("uirc: %s: No such file or directory\n", file);
       exit(6);
     } else {
-      printf("uirc: could not open file %s: %s\n", file, stbi_failure_reason());
-      exit(3);
+      if (access(file, R_OK) != 0) {
+        printf("uirc: %s: Permission denied\n", file);
+        exit(3);
+      } else {
+        printf("uirc: %s: Not an image or unsupported image type\n", file);
+        exit(10);
+      }
     }
   }
 
@@ -239,10 +244,13 @@ int readFile(char *file, int rFlag, int req, char* url) {
     }
   }
 
-  if (rFlag == 0) 
+  if (rFlag)
     printf(" [%dx%d]\n", width, height);
   else
     printf("\n");
+
+  if (displayfile != "")
+    free(displayfile);
 
   return 0;
 }
@@ -272,13 +280,12 @@ int download(char *url) {
     fclose(fp);
   }
 
-  //printf("%ld\n", returnCode);
   return 0;
 }
 // end of stack overflow snippet
 
 int handleArg(char *arg, int argc) {
-  int complete;
+  unsigned int complete;
   char flag, first, firstTwo[3], firstFour[5];
   const char *help;
 
@@ -320,11 +327,11 @@ int handleArg(char *arg, int argc) {
       printf("https://github.com/brysonsteck/uirc/blob/master/LICENSE\n");
       exit(1);
     } else if (strcmp("--res", arg) == 0 || strcmp("-r", arg) == 0) {
-      if (rFlag == 0) {
+      if (rFlag) {
         printf("uirc: -r / --res flag is used way too many times\n");
         exit(9);
       }
-      rFlag = 0;
+      rFlag = true;
       if (argc == 3)
         singular = true;
       return 0;
@@ -359,7 +366,7 @@ int handleArg(char *arg, int argc) {
 
 int main(int argc, char *argv[]) {
   char *i, *a;
-  int runs, code, arg_code;
+  unsigned int runs, code, arg_code;
 
   if (argc <= 1) {
     printf("uirc: at least one argument is required\n");
@@ -374,7 +381,7 @@ int main(int argc, char *argv[]) {
     runs++;
   }
 
-  if (runs < 2 && rFlag == 0) {
+  if (runs < 2 && rFlag) {
     printf("uirc: at least one file/url is required\n");
     return 1;
   }

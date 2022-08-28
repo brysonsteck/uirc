@@ -46,7 +46,6 @@ bool singular = false;
 bool rFlag = false;
 
 int getBcf(int width, int height) {
-  int *widthFactors, *heightFactors;
   unsigned int bcf;
   for (int i = 1; i <= width; i++) {
     for (int j = 1; j <= height; j++) {
@@ -66,24 +65,26 @@ bool compare_float(float a, float b) {
 
 int readFile(char *file, bool rFlag, unsigned int req, char* url) {
   char *displayfile;
+  int result;
   unsigned int width, height, channels, factor;
-  unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
+  result = stbi_info(file, &width, &height, &channels);
 
-  if (img == NULL) {
+  if (access(file, F_OK) != 0) {
     if (req == 0) {
       printf("FAIL\nuirc: request failed (%s), trying local fs instead\n", url);
       return 4;
-    } else if (access(file, F_OK) != 0) {
+    } else {
       printf("uirc: %s: No such file or directory\n", file);
       exit(6);
-    } else {
-      if (access(file, R_OK) != 0) {
-        printf("uirc: %s: Permission denied\n", file);
-        exit(3);
-      } else {
-        printf("uirc: %s: Not an image or unsupported image type\n", file);
-        exit(10);
-      }
+    }
+  } else {
+    if (access(file, R_OK) != 0) {
+      printf("uirc: %s: Permission denied\n", file);
+      exit(3);
+    } 
+    if (result != 1) {
+      printf("uirc: %s: Not an image or unsupported image type\n", file);
+      exit(10);
     }
   }
 
@@ -91,7 +92,6 @@ int readFile(char *file, bool rFlag, unsigned int req, char* url) {
     printf("ok\n");
 
   factor = getBcf(width, height);
-  stbi_image_free(img);
   double wuneven = ((float) height) / ((float) width);
   double huneven = ((float) width) / ((float) height);
 

@@ -67,23 +67,23 @@ int readFile(char *file, bool rFlag, unsigned int req, char* url) {
   char *displayfile;
   int result;
   unsigned int width, height, channels, factor;
-  result = stbi_info(file, &width, &height, &channels);
+  result = stbi_info(file, (int*) &width, (int*) &height, (int*) &channels);
 
   if (access(file, F_OK) != 0) {
     if (req == 0) {
       printf("FAIL\nuirc: request failed (%s), trying local fs instead\n", url);
       return 4;
     } else {
-      printf("uirc: %s: No such file or directory\n", file);
+      fprintf(stderr, "uirc: %s: No such file or directory\n", file);
       exit(6);
     }
   } else {
     if (access(file, R_OK) != 0) {
-      printf("uirc: %s: Permission denied\n", file);
+      fprintf(stderr, "uirc: %s: Permission denied\n", file);
       exit(3);
     } 
     if (result != 1) {
-      printf("uirc: %s: Not an image or unsupported image type\n", file);
+      fprintf(stderr, "uirc: %s: Not an image or unsupported image type\n", file);
       exit(10);
     }
   }
@@ -249,7 +249,7 @@ int readFile(char *file, bool rFlag, unsigned int req, char* url) {
   else
     printf("\n");
 
-  if (displayfile != "")
+  if (strcmp(displayfile, ""))
     free(displayfile);
 
   return 0;
@@ -328,7 +328,7 @@ int handleArg(char *arg, int argc) {
       exit(1);
     } else if (strcmp("--res", arg) == 0 || strcmp("-r", arg) == 0) {
       if (rFlag) {
-        printf("uirc: -r / --res flag is used way too many times\n");
+        fprintf(stderr, "uirc: -r / --res flag is used way too many times\n");
         exit(9);
       }
       rFlag = true;
@@ -339,7 +339,7 @@ int handleArg(char *arg, int argc) {
       printf("uirc v%s", VERSION);
       exit(1);
     } else {
-      printf("uirc: invalid argument \"%s\"\nType \"uirc --help\" for help with arguments.\n", arg);
+      fprintf(stderr, "uirc: invalid argument \"%s\"\nType \"uirc --help\" for help with arguments.\n", arg);
       exit(5);
     }
   }
